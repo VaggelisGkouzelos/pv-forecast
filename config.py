@@ -29,3 +29,10 @@ LAT = float(os.environ.get("PV_LAT", "39.2"))    # γεωγραφικό πλάτ
 LON = float(os.environ.get("PV_LON", "22.3"))    # γεωγραφικό μήκος
 TILT = float(os.environ.get("PV_TILT", "25"))    # κλίση πάνελ (μοίρες)
 AZIMUTH = float(os.environ.get("PV_AZIMUTH", "0"))  # προσανατολισμός (0 = Νότος)
+
+# Έλεγχος ασφαλείας: αν κάποιος γράψει λάθος τιμή στο .env (π.χ. μπερδέψει πλάτος/μήκος),
+# σταματάμε αμέσως με καθαρό μήνυμα, αντί να κατεβάσουμε καιρό για λάθος σημείο του πλανήτη.
+if not (-90 <= LAT <= 90 and -180 <= LON <= 180):
+    raise ValueError(f"Λάθος συντεταγμένες στο .env: PV_LAT={LAT}, PV_LON={LON}")
+if not (0 <= TILT <= 90):
+    raise ValueError(f"Η κλίση των πάνελ πρέπει να είναι 0-90 μοίρες (δόθηκε {TILT})")

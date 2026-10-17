@@ -31,6 +31,7 @@ params = {
 # --- 2. Στέλνουμε το αίτημα και παίρνουμε απάντηση ---
 print("Κατεβάζω δεδομένα καιρού...")
 response = requests.get(url, params=params, timeout=30)
+response.raise_for_status()  # αν η υπηρεσία απαντήσει με σφάλμα, σταματάμε εδώ με καθαρό μήνυμα
 data = response.json()   # η απάντηση έρχεται σε μορφή JSON (σαν λεξικό)
 
 # --- 3. Τα βάζουμε σε πίνακα (DataFrame) ---
