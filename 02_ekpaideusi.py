@@ -52,6 +52,13 @@ print(f"   {paragogi['time'].dt.date.nunique()} μέρες, {len(paragogi)} ώρ
 # 2. ΚΑΤΕΒΑΖΟΥΜΕ ΤΟΝ ΚΑΙΡΟ ΓΙΑ ΤΙΣ ΙΔΙΕΣ ΩΡΕΣ
 # ------------------------------------------------------------
 print("2) Κατεβάζω τον καιρό της Σοφιάδας από το Open-Meteo...")
+# Πόσες μέρες πίσω χρειαζόμαστε; Από την ΠΡΩΤΗ μέρα των Excel μέχρι σήμερα (+2 για σιγουριά).
+# Έτσι, όσο μαζεύονται νέες μέρες, ο καιρός καλύπτει πάντα ΟΛΟ το ιστορικό
+# (αλλιώς οι παλιότερες μέρες θα "χάνονταν" σιγά σιγά από την εκπαίδευση).
+# Το Open-Meteo δίνει έως 92 μέρες πίσω με αυτόν τον τρόπο.
+meres_piso = (pd.Timestamp.now().normalize() - paragogi["time"].min().normalize()).days + 2
+meres_piso = min(meres_piso, 92)
+print(f"   χρειάζομαι καιρό για {meres_piso} μέρες πίσω")
 apantisi = requests.get(
     "https://api.open-meteo.com/v1/forecast",
     params={
@@ -64,7 +71,7 @@ apantisi = requests.get(
             "cloud_cover",               # νεφοκάλυψη %
         ]),
         "tilt": TILT, "azimuth": AZIMUTH,
-        "past_days": 40,                 # 40 μέρες πίσω (καλύπτει από 20/9)
+        "past_days": meres_piso,         # όσες μέρες χρειάζονται (υπολογίστηκε παραπάνω)
         "forecast_days": 1,
         "timezone": "Europe/Athens",
     },
