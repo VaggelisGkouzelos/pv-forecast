@@ -1,6 +1,6 @@
 # ☀️ PV Forecast — Weather-driven ML forecasting for a 500 kW solar park
 
-> 🇬🇷 Σύστημα Machine Learning που μαθαίνει τη σχέση **καιρός → παραγωγή** ενός πραγματικού φωτοβολταϊκού πάρκου
+> 🇬🇷 **[Ελληνική έκδοση →](README.el.md)** · Σύστημα Machine Learning που μαθαίνει τη σχέση **καιρός → παραγωγή** ενός πραγματικού φωτοβολταϊκού πάρκου
 > 500 kW (Δομοκός, Ελλάδα) και προβλέπει την ωριαία παραγωγή των επόμενων ημερών από την πρόγνωση του καιρού.
 > Καθημερινή αυτόματη αναφορά στο Telegram μέσω n8n. Τα σχόλια του κώδικα είναι στα ελληνικά.
 
@@ -25,10 +25,14 @@ photovoltaic park in central Greece (Huawei FusionSolar data), and uses it to:
 Cleaning cut the Random Forest error by 25%.*
 
 **Data-quality check validated on reality:** with no labels, the cleaning step flagged **10 and 11 October 2026** as days when the park
-produced almost nothing despite clear-sky irradiance of up to ~480 W/m². The owner confirmed the park was
-**offline on both days**.
+produced almost nothing although the weather data showed irradiance of up to ~480 W/m² (on 11 Oct it output a flat
+~0.55 kWh every hour). The owner confirmed the park was **offline on both days**.
+
+*Forecast vs. actual on the held-out week (first model, before data cleaning) — the two flat-zero days are the outages:*
 
 ![Forecast vs actual](docs/images/apotelesmata_montelou.png)
+
+*Example output — forecast for the next two days with uncertainty band:*
 
 ![Next days forecast](docs/images/provlepsi_avrio.png)
 
@@ -50,7 +54,9 @@ produced almost nothing despite clear-sky irradiance of up to ~480 W/m². The ow
                      ▼
         04  Forecast next days (+ uncertainty band from the 300 trees)
                      ▼
-        05  Daily report  ──►  n8n  ──►  📱 Telegram
+        05  Daily report (text)
+                     ▼
+        n8n runs 02→05 every morning at 07:30  ──►  Telegram
 ```
 
 ### Notable technical decisions
@@ -65,7 +71,7 @@ produced almost nothing despite clear-sky irradiance of up to ~480 W/m². The ow
 - **Uncertainty estimation** — 10th–90th percentile of the individual tree predictions.
 - **Privacy** — the park's exact location lives only in a local `.env`; the public code uses a rounded location.
 
-### Feature importance (Random Forest)
+### Feature importance (Random Forest, held-out evaluation model)
 | Feature | Importance |
 |---|---|
 | Global tilted irradiance | 36.6% |
