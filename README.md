@@ -1,7 +1,5 @@
 # ☀️ PV Forecast: Πρόβλεψη παραγωγής φωτοβολταϊκού πάρκου 500 kW από τον καιρό, με Machine Learning
 
-<p align="center"><img src="docs/images/banner.png" width="420" alt="Καιρός → Random Forest → kWh αύριο"></p>
-
 > 🇬🇧 **[English version →](README.en.md)**
 
 Ένα ολοκληρωμένο σύστημα Machine Learning που μαθαίνει πώς **ο καιρός καθορίζει την παραγωγή** ενός πραγματικού

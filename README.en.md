@@ -1,7 +1,5 @@
 # ☀️ PV Forecast — Weather-driven ML forecasting for a 500 kW solar park
 
-<p align="center"><img src="docs/images/banner.png" width="420" alt="Weather → Random Forest → tomorrow's kWh"></p>
-
 > 🇬🇷 **[Ελληνική έκδοση →](README.md)** · Code comments are in Greek.
 
 An end-to-end machine learning pipeline that learns how **weather drives the output** of a real 500 kW
