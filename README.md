@@ -124,4 +124,4 @@ python3 02_ekpaideusi.py && python3 03_katharismos.py && python3 04_provlepsi.py
 Python · pandas · scikit-learn · matplotlib · REST APIs (Open-Meteo) · n8n · Telegram Bot API
 
 ## 👤 Δημιουργός
-**Βαγγέλης Γκουζέλος**: πτυχιούχος Μαθηματικών, μεταπτυχιακός φοιτητής στα Προηγμένα Συστήματα Πληροφορικής (Τεχνητή Νοημοσύνη & Ανάπτυξη Λογισμικού), Πανεπιστήμιο Πειραιώς.
+**Βαγγέλης Γκουζέλος** Mathematician | MSc student in AI & Software Development, University of Piraeus
