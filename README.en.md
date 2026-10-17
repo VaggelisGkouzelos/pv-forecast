@@ -3,7 +3,7 @@
 > 🇬🇷 **[Ελληνική έκδοση →](README.md)** · Code comments are in Greek.
 
 An end-to-end machine learning pipeline that learns how **weather drives the output** of a real 500 kW
-photovoltaic park in central Greece (Huawei FusionSolar data), and uses it to:
+photovoltaic park in Sofiada, central Greece (Huawei FusionSolar data), and uses it to:
 
 1. **Forecast** hourly energy production (kWh) for the next days from the weather forecast
 2. **Learn from clean data** — hours when the park was curtailed or offline are detected and excluded from training, so the model learns the park's normal behaviour
