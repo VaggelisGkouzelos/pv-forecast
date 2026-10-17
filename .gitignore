@@ -18,3 +18,6 @@ __pycache__/
 # --- Παλιά / ενδιάμεσα αρχεία ---
 n8n_provlepsi.sh
 n8n_workflow_provlepsi.json
+
+# --- Εκκινητές μόνο για το δικό μου Mac ---
+launchers/

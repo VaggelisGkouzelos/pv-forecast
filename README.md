@@ -1,134 +1,127 @@
-# ☀️ PV Forecast — Weather-driven ML forecasting for a 500 kW solar park
+# ☀️ PV Forecast: Πρόβλεψη παραγωγής φωτοβολταϊκού πάρκου 500 kW από τον καιρό, με Machine Learning
 
-> 🇬🇷 **[Ελληνική έκδοση →](README.el.md)** · Σύστημα Machine Learning που μαθαίνει τη σχέση **καιρός → παραγωγή** ενός πραγματικού φωτοβολταϊκού πάρκου
-> 500 kW (Δομοκός, Ελλάδα) και προβλέπει την ωριαία παραγωγή των επόμενων ημερών από την πρόγνωση του καιρού.
-> Καθημερινή αυτόματη αναφορά στο Telegram μέσω n8n. Τα σχόλια του κώδικα είναι στα ελληνικά.
+> 🇬🇧 **[English version →](README.en.md)**
 
-An end-to-end machine learning pipeline that learns how **weather drives the output** of a real 500 kW
-photovoltaic park in central Greece (Huawei FusionSolar data), and uses it to:
+Ένα ολοκληρωμένο σύστημα Machine Learning που μαθαίνει πώς **ο καιρός καθορίζει την παραγωγή** ενός πραγματικού
+φωτοβολταϊκού πάρκου 500 kW στην κεντρική Ελλάδα (δεδομένα από το Huawei FusionSolar). Το χρησιμοποιεί για να:
 
-1. **Forecast** hourly energy production (kWh) for the next days from the weather forecast
-2. **Learn from clean data** — hours when the park was curtailed or offline are detected and excluded from training, so the model learns the park's normal behaviour
-3. **Report daily** to Telegram, fully automated with **n8n**
+1. **Προβλέπει** την ωριαία παραγωγή (kWh) των επόμενων ημερών από την πρόγνωση του καιρού
+2. **Μαθαίνει από καθαρά δεδομένα.** Οι ώρες που το πάρκο είχε περικοπή ή ήταν εκτός λειτουργίας εντοπίζονται και βγαίνουν από την εκπαίδευση, ώστε το μοντέλο να μάθει την κανονική συμπεριφορά του πάρκου.
+3. **Στέλνει καθημερινή αναφορά** στο Telegram, πλήρως αυτοματοποιημένα με το **n8n**
 
 ---
 
-## 🎯 Key results
+## 🎯 Βασικά αποτελέσματα
 
-| | MAE (kWh/hour) | R² |
+| | Μέσο σφάλμα MAE (kWh/ώρα) | R² |
 |---|---|---|
-| Linear regression (irradiance only) — baseline | 35.4 | 0.860 |
-| Random Forest (6 weather features) | 24.9 | 0.883 |
-| **Random Forest + iterative data cleaning** | **18.7** | **0.943** |
+| Γραμμική παλινδρόμηση (μόνο ακτινοβολία), μοντέλο αναφοράς | 35,4 | 0,860 |
+| Random Forest (6 μεταβλητές καιρού) | 24,9 | 0,883 |
+| **Random Forest + επαναληπτικός καθαρισμός δεδομένων** | **18,7** | **0,943** |
 
-*All models evaluated on the same 71 normal-operation hours of a chronologically held-out week (8–14 Oct 2026; no data leakage).
-Cleaning cut the Random Forest error by 25%.*
+*Όλα τα μοντέλα αξιολογήθηκαν στις ίδιες 71 ώρες κανονικής λειτουργίας μιας εβδομάδας που κρατήθηκε χρονολογικά
+εκτός εκπαίδευσης (8–14 Οκτ 2026, χωρίς διαρροή δεδομένων). Ο καθαρισμός μείωσε το σφάλμα του Random Forest κατά 25%.*
 
-**Data-quality check validated on reality:** with no labels, the cleaning step flagged **10 and 11 October 2026** as days when the park
-produced almost nothing although the weather data showed irradiance of up to ~480 W/m² (on 11 Oct it output a flat
-~0.55 kWh every hour). The owner confirmed the park was **offline on both days**.
+**Ο έλεγχος ποιότητας επιβεβαιώθηκε στην πράξη:** χωρίς καμία ετικέτα, το βήμα καθαρισμού εντόπισε τις
+**10 και 11 Οκτωβρίου 2026** ως μέρες που το πάρκο σχεδόν δεν παρήγαγε, ενώ ο καιρός έδειχνε ακτινοβολία έως ~480 W/m²
+(στις 11/10 έβγαζε σταθερά ~0,55 kWh κάθε ώρα). Ο ιδιοκτήτης επιβεβαίωσε ότι **το πάρκο ήταν εκτός λειτουργίας και τις δύο μέρες**.
 
-*Forecast vs. actual on the held-out week (first model, before data cleaning) — the two flat-zero days are the outages:*
+*Πρόβλεψη vs πραγματικό στην εβδομάδα αξιολόγησης (πρώτο μοντέλο, πριν τον καθαρισμό). Οι δύο μέρες στο μηδέν είναι τα σταματήματα:*
 
-![Forecast vs actual](docs/images/apotelesmata_montelou.png)
+![Πρόβλεψη vs πραγματικό](docs/images/apotelesmata_montelou.png)
 
-*Example output — forecast for the next two days with uncertainty band:*
+*Παράδειγμα: πρόβλεψη για τις επόμενες δύο μέρες με εύρος αβεβαιότητας:*
 
-![Next days forecast](docs/images/provlepsi_avrio.png)
+![Πρόβλεψη επόμενων ημερών](docs/images/provlepsi_avrio.png)
 
 ---
 
-## 🧠 How it works
+## 🧠 Πώς λειτουργεί
 
 ```
  Huawei FusionSolar           Open-Meteo API
- (hourly production, kWh)     (irradiance on tilted panel, direct/diffuse,
-          │                    temperature, cloud cover)
+ (ωριαία παραγωγή, kWh)       (ακτινοβολία στο κεκλιμένο πάνελ, άμεση/διάχυτη,
+          │                    θερμοκρασία, νεφοκάλυψη)
           └──────────┬─────────┘
                      ▼
-        02  Merge & align time windows
+        02  Ένωση & ευθυγράμμιση ωρών
                      ▼
-        03  Train Random Forest  ◄──┐  Data cleaning (improves the model):
-            drop non-normal hours ──┘  out-of-fold predictions (GroupKFold by day),
-                     │                 drop curtailed/offline hours (<20% of expected), retrain
+        03  Εκπαίδευση Random Forest ◄──┐  Καθαρισμός δεδομένων (βελτιώνει το μοντέλο):
+            αφαίρεση μη κανονικών ωρών ─┘  προβλέψεις εκτός δείγματος (GroupKFold ανά μέρα),
+                     │                      αφαίρεση ωρών με <20% του αναμενόμενου, ξανά εκπαίδευση
                      ▼
-        04  Forecast next days (+ uncertainty band from the 300 trees)
+        04  Πρόβλεψη επόμενων ημερών (+ εύρος αβεβαιότητας από τα 300 δέντρα)
                      ▼
-        05  Daily report (text)
+        05  Ημερήσια αναφορά (κείμενο)
                      ▼
-        n8n runs 02→05 every morning at 07:30  ──►  Telegram
+        Το n8n τρέχει 02→05 κάθε πρωί στις 07:30  ──►  Telegram
 ```
 
-### Notable technical decisions
-- **Chronological train/test split** — the model always predicts the future from the past.
-- **Time alignment** — Open-Meteo values are interval-*ending* averages while FusionSolar rows are
-  interval-*starting*; weather is shifted by one hour so both describe the same interval.
-- **GroupKFold cross-validation by day** for anomaly flagging, so an hour is never judged by a model
-  that has already seen it (or other hours of the same day).
-- **Threshold tuning with a sanity check** — a 60% threshold flagged ~30% of hours and implied an
-  unrealistic 45% loss (it confused weather-forecast errors with curtailment). A 20% threshold isolates
-  true stoppages only.
-- **Uncertainty estimation** — 10th–90th percentile of the individual tree predictions.
-- **Privacy** — the park's exact location lives only in a local `.env`; the public code uses a rounded location.
+### Σημαντικές τεχνικές αποφάσεις
+- **Χρονολογικός διαχωρισμός εκπαίδευσης/αξιολόγησης.** Το μοντέλο προβλέπει πάντα το μέλλον από το παρελθόν.
+- **Ευθυγράμμιση ωρών.** Στο Open-Meteo η τιμή μιας ώρας είναι ο μέσος όρος της ώρας που *τελειώνει*, ενώ στο FusionSolar της ώρας που *αρχίζει*. Ο καιρός μετατοπίζεται κατά μία ώρα ώστε να περιγράφουν το ίδιο διάστημα.
+- **GroupKFold cross-validation ανά μέρα** για τον εντοπισμό ανωμαλιών. Έτσι μια ώρα δεν κρίνεται ποτέ από μοντέλο που την έχει ήδη δει (ή άλλες ώρες της ίδιας μέρας).
+- **Ρύθμιση ορίου με έλεγχο λογικής.** Όριο 60% σημάδευε ~30% των ωρών και έβγαζε μη ρεαλιστική απώλεια 45%, γιατί μπέρδευε λάθη πρόγνωσης καιρού με περικοπές. Όριο 20% απομονώνει μόνο τα πραγματικά σταματήματα.
+- **Εκτίμηση αβεβαιότητας.** Χρησιμοποιείται το 10ο–90ό εκατοστημόριο των προβλέψεων των επιμέρους δέντρων.
+- **Ιδιωτικότητα.** Η ακριβής θέση του πάρκου υπάρχει μόνο σε τοπικό αρχείο `.env`, και ο δημόσιος κώδικας χρησιμοποιεί στρογγυλεμένη θέση.
 
-### Feature importance (Random Forest, held-out evaluation model)
-| Feature | Importance |
+### Σημαντικότητα μεταβλητών (Random Forest, μοντέλο αξιολόγησης)
+| Μεταβλητή | Σημαντικότητα |
 |---|---|
-| Global tilted irradiance | 36.6% |
-| Direct radiation | 27.7% |
-| Diffuse radiation | 15.7% |
-| Temperature | 12.5% |
-| Cloud cover | 4.6% |
-| Hour of day | 2.9% |
+| Ακτινοβολία στο κεκλιμένο πάνελ | 36,6% |
+| Άμεση ακτινοβολία | 27,7% |
+| Διάχυτη ακτινοβολία | 15,7% |
+| Θερμοκρασία | 12,5% |
+| Νεφοκάλυψη | 4,6% |
+| Ώρα της μέρας | 2,9% |
 
 ---
 
-## 📁 Project structure
+## 📁 Δομή του project
 
-| File | What it does |
+| Αρχείο | Τι κάνει |
 |---|---|
-| `config.py` | Shared settings; reads the private `.env` |
-| `01_kairos.py` | Downloads weather data and plots irradiance |
-| `02_ekpaideusi.py` | Merges production + weather; trains baseline & Random Forest |
-| `03_katharismos.py` | Data cleaning: removes curtailed/offline hours and retrains |
-| `04_provlepsi.py` | Forecast for the next days with uncertainty band |
-| `05_anafora.py` | Writes the short daily report (Greek) |
-| `n8n_kathimerina.sh` | Runs the full pipeline (02→05); called by n8n |
-| `n8n/pv_forecast_workflow.json` | n8n workflow: schedule → Python → Telegram |
-| `*.command` | Double-click launchers for macOS |
+| `config.py` | Κοινές ρυθμίσεις, διαβάζει το ιδιωτικό `.env` |
+| `01_kairos.py` | Κατεβάζει δεδομένα καιρού και φτιάχνει γράφημα ακτινοβολίας |
+| `02_ekpaideusi.py` | Ενώνει παραγωγή + καιρό, εκπαιδεύει μοντέλο αναφοράς & Random Forest |
+| `03_katharismos.py` | Καθαρισμός δεδομένων: αφαιρεί ώρες περικοπής/εκτός λειτουργίας και ξαναεκπαιδεύει |
+| `04_provlepsi.py` | Πρόβλεψη επόμενων ημερών με εύρος αβεβαιότητας |
+| `05_anafora.py` | Γράφει τη σύντομη ημερήσια αναφορά |
+| `n8n_kathimerina.sh` | Τρέχει όλο το pipeline (02→05), το καλεί το n8n |
+| `n8n/pv_forecast_workflow.json` | Workflow του n8n: χρονοδιακόπτης → Python → Telegram |
 
 ---
 
-## 🚀 Run it
+## 🚀 Εκτέλεση
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env            # put your own coordinates here
-# place FusionSolar "Plant Statistics Report by Time" .xlsx files in data/fusionsolar/
+cp .env.example .env            # βάλε εδώ τις δικές σου συντεταγμένες
+# βάλε τα αρχεία FusionSolar "Plant Statistics Report by Time" (.xlsx) στο data/fusionsolar/
 python3 02_ekpaideusi.py && python3 03_katharismos.py && python3 04_provlepsi.py && python3 05_anafora.py
 ```
 
-**Automation:** import `n8n/pv_forecast_workflow.json` into n8n, set the script path, your Telegram
-bot credential and chat ID, then publish. (n8n 2.x: the *Execute Command* node must be enabled with
-`NODES_EXCLUDE="[]"` — see `ΞΕΚΙΝΑ_N8N.command`.)
+**Αυτοματοποίηση:** εισήγαγε το `n8n/pv_forecast_workflow.json` στο n8n, όρισε τη διαδρομή του script, το credential
+του Telegram bot και το chat ID, και πάτα Publish. (Στο n8n 2.x ο κόμβος *Execute Command* ενεργοποιείται με τη μεταβλητή
+περιβάλλοντος `NODES_EXCLUDE="[]"`.)
 
-> The park's production data is private and not included in this repository.
+> Τα δεδομένα παραγωγής του πάρκου είναι ιδιωτικά και δεν περιλαμβάνονται στο repository.
 
 ---
 
-## 🗺️ Roadmap
-- [x] Weather + production data pipeline
-- [x] Random Forest forecasting with data cleaning & uncertainty band
-- [x] Daily automation with n8n + Telegram
-- [ ] Automatic ingestion of the daily FusionSolar e-mail (Gmail)
-- [ ] **AI agent** (LLM) that explains the daily forecast and any unusual day in plain language
-- [ ] Cloud deployment (GitHub Actions) so it runs 24/7
-- [ ] Longer history (seasonality) and more weather features
-- [ ] Error notifications
+## 🗺️ Επόμενα βήματα
+- [x] Pipeline δεδομένων καιρού + παραγωγής
+- [x] Πρόβλεψη με Random Forest, καθαρισμός δεδομένων & εύρος αβεβαιότητας
+- [x] Καθημερινή αυτοματοποίηση με n8n + Telegram
+- [ ] Αυτόματη λήψη του καθημερινού email του FusionSolar (Gmail)
+- [ ] **AI agent** (LLM) που εξηγεί σε απλή γλώσσα την πρόβλεψη και κάθε ασυνήθιστη μέρα
+- [ ] Λειτουργία στο cloud (GitHub Actions) ώστε να τρέχει 24/7
+- [ ] Μεγαλύτερο ιστορικό (εποχικότητα) και περισσότερες μεταβλητές καιρού
+- [ ] Ειδοποιήσεις σφαλμάτων
 
-## 🛠️ Tech stack
+## 🛠️ Τεχνολογίες
 Python · pandas · scikit-learn · matplotlib · REST APIs (Open-Meteo) · n8n · Telegram Bot API
 
-## 👤 Author
-**Vaggelis Gkouzelos** — Mathematics graduate, MSc student in Advanced Computer Systems (AI & Software Development), University of Piraeus.
+## 👤 Δημιουργός
+**Βαγγέλης Γκουζέλος**: πτυχιούχος Μαθηματικών, μεταπτυχιακός φοιτητής στα Προηγμένα Συστήματα Πληροφορικής (Τεχνητή Νοημοσύνη & Ανάπτυξη Λογισμικού), Πανεπιστήμιο Πειραιώς.
