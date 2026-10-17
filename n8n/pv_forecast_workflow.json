@@ -1,0 +1,47 @@
+{
+  "name": "PV Forecast - daily pipeline",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "a1",
+      "name": "Manual trigger (test)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": { "rule": { "interval": [ { "field": "days", "triggerAtHour": 7, "triggerAtMinute": 30 } ] } },
+      "id": "a2",
+      "name": "Every morning 07:30",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 200]
+    },
+    {
+      "parameters": { "command": "/bin/bash \"/PATH/TO/pv-forecast/n8n_kathimerina.sh\"" },
+      "id": "a3",
+      "name": "Run ML pipeline (Python)",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [320, 100]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.stdout }}",
+        "additionalFields": { "appendAttribution": false }
+      },
+      "id": "a4",
+      "name": "Send report (Telegram)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [620, 100]
+    }
+  ],
+  "connections": {
+    "Manual trigger (test)": { "main": [ [ { "node": "Run ML pipeline (Python)", "type": "main", "index": 0 } ] ] },
+    "Every morning 07:30": { "main": [ [ { "node": "Run ML pipeline (Python)", "type": "main", "index": 0 } ] ] },
+    "Run ML pipeline (Python)": { "main": [ [ { "node": "Send report (Telegram)", "type": "main", "index": 0 } ] ] }
+  },
+  "settings": { "timezone": "Europe/Athens" }
+}
